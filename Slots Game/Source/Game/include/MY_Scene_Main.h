@@ -17,6 +17,11 @@ public:
 
 	float leverY;
 	float targetLever;
+	float leverAngle;
+
+	Timeout * spinTimeout;
+
+	bool spinning;
 
 
 	virtual void update(Step * _step) override;

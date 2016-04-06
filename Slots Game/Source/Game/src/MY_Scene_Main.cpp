@@ -25,7 +25,9 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 	screenSurface(new RenderSurface(screenSurfaceShader, true)),
 	screenFBO(new StandardFrameBuffer(true)),
 	leverY(0),
-	targetLever(0)
+	leverAngle(0),
+	targetLever(0),
+	spinning(false)
 {
 	// memory management
 	screenSurface->incrementReferenceCount();
@@ -52,6 +54,25 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 		childTransform->addChild(slot)->translate(3.102, i*1.832, -2.869);
 		slots.push_back(slot);
 	}
+
+
+	spinTimeout = new Timeout(1.f, [this](sweet::Event * _event){
+		leverAngle = 0;
+	});
+
+	spinTimeout->eventManager->addEventListener("start", [this](sweet::Event * _event){	
+		spinning = true;
+		for(auto s : slots){
+			s->selection = sweet::NumberUtils::randomInt(0, 11);
+			s->spinTimeout->restart();
+		}
+	});
+
+	spinTimeout->eventManager->addEventListener("progress", [this](sweet::Event * _event){
+		leverAngle = Easing::easeOutBounce(_event->getFloatData("progress"), 180, -180, 1);
+	});
+	childTransform->addChild(spinTimeout, false);
+
 
 
 	// UI
@@ -97,18 +118,33 @@ void MY_Scene_Main::update(Step * _step){
 
 
 	// GAME
-	if(mouse->leftJustPressed()){
-		// start lever
-		leverY = mouse->mouseY();
-	}else if(mouse->leftDown()){
-		// pull lever
-		targetLever = mouse->mouseY(false) - leverY;
-	}else if(mouse->leftJustReleased()){
-		// release lever
+	if(spinning){
+		for(auto s : slots){
+
+		}
+	}else{
+		if(mouse->leftJustPressed()){
+			// start lever
+			leverY = mouse->mouseY();
+		}else if(mouse->leftDown()){
+			// pull lever
+			targetLever = (mouse->mouseY(false) - leverY) / sweet::getWindowHeight();
+
+			if(targetLever < -0.9f){
+				spinTimeout->restart();
+			}
+
+		}else if(mouse->leftJustReleased()){
+			// release lever
+			targetLever = 0;
+		}
+
+
+		targetLever = glm::clamp(targetLever, -1.f, 0.f);
+
+		leverAngle += (-targetLever*180.f - leverAngle) * 0.25f;
 	}
-
-
-	lever->childTransform->setOrientation(glm::angleAxis(-targetLever, glm::vec3(1,0,0)));
+	lever->childTransform->setOrientation(glm::angleAxis(leverAngle, glm::vec3(1,0,0)));
 	
 	
 	// Scene update

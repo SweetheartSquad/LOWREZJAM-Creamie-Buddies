@@ -27,7 +27,7 @@ MY_Scene_Base::MY_Scene_Base(Game * _game) :
 	controller(new JoystickVirtual(0))
 {
 	baseShader->addComponent(new ShaderComponentMVP(baseShader));
-	baseShader->addComponent(new ShaderComponentDiffuse(baseShader, true));
+	//baseShader->addComponent(new ShaderComponentDiffuse(baseShader, true));
 	baseShader->addComponent(new ShaderComponentTexture(baseShader));
 	baseShader->compileShader();
 	baseShader->name = "MY_Scene_Base base shader";
@@ -42,7 +42,7 @@ MY_Scene_Base::MY_Scene_Base(Game * _game) :
 	// configure the camera's default properties
 	debugCam->farClip = 1000.f;
 	debugCam->nearClip = 0.01f;
-	debugCam->firstParent()->translate(5.0f, 1.5f, 22.5f);
+	debugCam->firstParent()->translate(0, 0, 0);
 	debugCam->yaw = 90.0f;
 	debugCam->pitch = -10.0f;
 	

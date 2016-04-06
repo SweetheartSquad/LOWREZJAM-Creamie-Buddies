@@ -11,5 +11,20 @@
       "src": "click.png",
       "generateMipmaps": false
     }
+
+
+    ,{
+      "type": "mesh",
+      "id": "slot",
+      "src": "slot.obj"
+    },{
+      "type": "mesh",
+      "id": "lever",
+      "src": "lever.obj"
+    },{
+      "type": "mesh",
+      "id": "casing",
+      "src": "casing.obj"
+    }
   ]
 }

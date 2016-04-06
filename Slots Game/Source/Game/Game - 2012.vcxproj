@@ -17,6 +17,7 @@
     <ClCompile Include="src\MY_Scene_Base.cpp" />
     <ClCompile Include="src\MY_Scene_Main.cpp" />
     <ClCompile Include="src\MY_Scene_Menu.cpp" />
+    <ClCompile Include="src\Slot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\MY_Game.h" />
@@ -24,6 +25,7 @@
     <ClInclude Include="include\MY_Scene_Base.h" />
     <ClInclude Include="include\MY_Scene_Main.h" />
     <ClInclude Include="include\MY_Scene_Menu.h" />
+    <ClInclude Include="include\Slot.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

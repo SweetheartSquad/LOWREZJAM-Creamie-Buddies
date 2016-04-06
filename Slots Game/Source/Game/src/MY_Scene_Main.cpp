@@ -17,12 +17,15 @@
 #include <PointLight.h>
 
 #include <MY_Game.h>
+#include <Slot.h>
 
 MY_Scene_Main::MY_Scene_Main(Game * _game) :
 	MY_Scene_Base(_game),
 	screenSurfaceShader(new Shader("assets/RenderSurface_1", false, true)),
 	screenSurface(new RenderSurface(screenSurfaceShader, true)),
-	screenFBO(new StandardFrameBuffer(true))
+	screenFBO(new StandardFrameBuffer(true)),
+	leverY(0),
+	targetLever(0)
 {
 	// memory management
 	screenSurface->incrementReferenceCount();
@@ -33,12 +36,34 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 	screenSurface->uvEdgeMode = GL_CLAMP_TO_BORDER;
 
 	// GAME
-	
+	MeshEntity * casing = new MeshEntity(MY_ResourceManager::globalAssets->getMesh("casing")->meshes.at(0), baseShader);
+	casing->mesh->setScaleMode(GL_NEAREST);
+	casing->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("casing")->texture);
+	childTransform->addChild(casing);
+
+
+	lever = new MeshEntity(MY_ResourceManager::globalAssets->getMesh("lever")->meshes.at(0), baseShader);
+	lever->mesh->setScaleMode(GL_NEAREST);
+	lever->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("lever")->texture);
+	childTransform->addChild(lever)->translate(6.056, 3.698, -2.928);
+
+	for(unsigned long int i = 1; i <= 3; ++i){
+		Slot * slot = new Slot(baseShader);
+		childTransform->addChild(slot)->translate(3.102, i*1.832, -2.869);
+		slots.push_back(slot);
+	}
 
 
 	// UI
 
-
+	
+	debugCam->controller->alignMouse();
+	debugCam->controller->rotationEnabled = false;
+	debugCam->setOrientation(debugCam->calcOrientation());
+	debugCam->firstParent()->translate(3.5, -2.0, 30);
+	debugCam->fieldOfView = 15;
+	debugCam->pitch = 10;
+	debugCam->interpolation = 1;
 }
 
 MY_Scene_Main::~MY_Scene_Main(){
@@ -68,6 +93,22 @@ void MY_Scene_Main::update(Step * _step){
 		screenSurfaceShader->load();
 	}
 
+
+
+
+	// GAME
+	if(mouse->leftJustPressed()){
+		// start lever
+		leverY = mouse->mouseY();
+	}else if(mouse->leftDown()){
+		// pull lever
+		targetLever = mouse->mouseY(false) - leverY;
+	}else if(mouse->leftJustReleased()){
+		// release lever
+	}
+
+
+	lever->childTransform->setOrientation(glm::angleAxis(-targetLever, glm::vec3(1,0,0)));
 	
 	
 	// Scene update

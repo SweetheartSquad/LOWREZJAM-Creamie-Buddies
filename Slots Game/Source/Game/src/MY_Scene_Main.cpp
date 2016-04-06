@@ -54,10 +54,31 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 		childTransform->addChild(slot)->translate(3.102, i*1.832, -2.869);
 		slots.push_back(slot);
 	}
+	
+	
 
+	wipe = new NodeUI(uiLayer->world);
+	wipe->background->mesh->setScaleMode(GL_NEAREST);
+	wipe->background->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("waiting")->texture);
+	uiLayer->addChild(wipe);
+	wipe->setRationalHeight(1.f, uiLayer);
+	wipe->setRationalWidth(1.f, uiLayer);
+	wipe->setMarginLeft(1.f);
+
+	doneTimeout = new Timeout(3.f, [this](sweet::Event * _event){
+		// go to next scene
+	});
+	doneTimeout->eventManager->addEventListener("progress", [this](sweet::Event * _event){
+		float p = _event->getFloatData("progress");
+		p = glm::clamp(p - 0.5f, 0.f, 0.5f);
+		
+		wipe->marginLeft.rationalSize = Easing::easeOutBounce(p, 1, -1, 0.5f);
+	});
+	childTransform->addChild(doneTimeout, false);
 
 	spinTimeout = new Timeout(1.f, [this](sweet::Event * _event){
 		leverAngle = 0;
+		doneTimeout->start();
 	});
 
 	spinTimeout->eventManager->addEventListener("start", [this](sweet::Event * _event){	
@@ -118,11 +139,7 @@ void MY_Scene_Main::update(Step * _step){
 
 
 	// GAME
-	if(spinning){
-		for(auto s : slots){
-
-		}
-	}else{
+	if(!spinning){
 		if(mouse->leftJustPressed()){
 			// start lever
 			leverY = mouse->mouseY();

@@ -18,8 +18,10 @@ public:
 	float leverY;
 	float targetLever;
 	float leverAngle;
+	
+	Timeout * spinTimeout, * doneTimeout;
 
-	Timeout * spinTimeout;
+	NodeUI * wipe;
 
 	bool spinning;
 

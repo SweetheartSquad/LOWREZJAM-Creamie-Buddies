@@ -10,6 +10,11 @@
       "id": "CLICK",
       "src": "click.png",
       "generateMipmaps": false
+    },{
+      "type": "texture",
+      "id": "waiting",
+      "src": "waiting.png",
+      "generateMipmaps": false
     }
 
 

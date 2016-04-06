@@ -1,0 +1,15 @@
+{
+  "assets": [
+    {
+      "type": "texture",
+      "id": "MENU",
+      "src": "menu.png",
+      "generateMipmaps": false
+    },{
+      "type": "texture",
+      "id": "CLICK",
+      "src": "click.png",
+      "generateMipmaps": false
+    }
+  ]
+}

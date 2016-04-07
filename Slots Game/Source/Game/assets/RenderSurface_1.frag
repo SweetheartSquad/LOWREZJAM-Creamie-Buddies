@@ -6,7 +6,7 @@ out vec4 outColor;
 
 uniform sampler2D texFramebuffer;
 uniform float time = 0;
-
+uniform float mag = 0;
 
 float rand(vec2 co){
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
@@ -25,8 +25,7 @@ void main() {
 	vec2 p = r;
 	
 	// distort uvs
-	/*r.x += (0.5 - r.x) * 0.25;
-	r.y += (0.5 - r.y) * 0.25;*/
+	r.y += cos(time*200*(mag))*4/64.f * mag;
 
 	// original
 	vec4 orig = vec4(texture(texFramebuffer, Texcoord) );
@@ -36,4 +35,5 @@ void main() {
 	
 	// combined
 	outColor = orig;
+	outColor += col*mag;
 }

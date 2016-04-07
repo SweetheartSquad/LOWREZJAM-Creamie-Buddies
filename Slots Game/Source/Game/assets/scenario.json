@@ -22,6 +22,11 @@
       "generateMipmaps": false
     },{
       "type": "texture",
+      "id": "slot",
+      "src": "slot.png",
+      "generateMipmaps": false
+    },{
+      "type": "texture",
       "id": "bg",
       "src": "bg.png",
       "generateMipmaps": false

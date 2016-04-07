@@ -19,7 +19,7 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 
 	zoom(12.5),
 	gameCamPolarCoords(0, zoom),
-	orbitalSpeed(1),
+	orbitalSpeed(-7),
 	orbitalHeight(3),
 	targetOrbitalHeight(orbitalHeight)
 {
@@ -68,7 +68,10 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 	childTransform->addChild(readyTimeout, false);
 	readyTimeout->start();
 	readyTimeout->name = "ready timeout";
-
+	
+	
+	// TODO: take this out when more meshes are done
+	_cone = _face = _topping = 0;
 
 	
 	cone = new MeshEntity(MY_ResourceManager::globalAssets->getMesh("cone")->meshes.at(_cone), baseShader);
@@ -78,7 +81,7 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 	cone->mesh->setScaleMode(GL_NEAREST);
 	face->mesh->setScaleMode(GL_NEAREST);
 	topping->mesh->setScaleMode(GL_NEAREST);
-	
+
 	cone->mesh->replaceTextures(MY_ResourceManager::globalAssets->getTexture("icecream_"+std::to_string(_cone))->texture);
 	face->mesh->replaceTextures(MY_ResourceManager::globalAssets->getTexture("icecream_"+std::to_string(_face))->texture);
 	topping->mesh->replaceTextures(MY_ResourceManager::globalAssets->getTexture("icecream_"+std::to_string(_topping))->texture);
@@ -138,9 +141,9 @@ void EndScene::update(Step * _step){
 
 	// camera movement
 	zoom -= mouse->getMouseWheelDelta();
-	zoom = glm::clamp(zoom, 10.f, 20.f);
+	zoom = glm::clamp(zoom, 5.f, 20.f);
 	gameCamPolarCoords.y += (zoom - gameCamPolarCoords.y) * 0.05f;
-	gameCamPolarCoords.y = glm::clamp(gameCamPolarCoords.y, 10.f, 20.f);
+	gameCamPolarCoords.y = glm::clamp(gameCamPolarCoords.y, 5.f, 20.f);
 
 	if(mouse->leftDown()){
 		if(!mouse->leftJustPressed()){
@@ -157,7 +160,7 @@ void EndScene::update(Step * _step){
 		sweet::setCursorMode(GLFW_CURSOR_NORMAL);
 	}
 	
-	targetOrbitalHeight = glm::clamp(targetOrbitalHeight, 1.f, 10.f);
+	targetOrbitalHeight = glm::clamp(targetOrbitalHeight, -5.f, 20.f);
 	orbitalSpeed = glm::clamp(orbitalSpeed, -64.f, 64.f);
 
 	orbitalHeight += (targetOrbitalHeight - orbitalHeight) * 0.1f;

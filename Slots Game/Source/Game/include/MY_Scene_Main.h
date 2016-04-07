@@ -18,6 +18,8 @@ public:
 	float leverY;
 	float targetLever;
 	float leverAngle;
+
+	float shake;
 	
 	Timeout * spinTimeout, * doneTimeout;
 

@@ -28,7 +28,8 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 	leverY(0),
 	leverAngle(0),
 	targetLever(0),
-	spinning(false)
+	spinning(false),
+	shake(0)
 {
 	// memory management
 	screenSurface->incrementReferenceCount();
@@ -39,6 +40,13 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 	screenSurface->uvEdgeMode = GL_CLAMP_TO_BORDER;
 
 	// GAME
+
+	for(unsigned long int i = 1; i <= 3; ++i){
+		Slot * slot = new Slot(baseShader);
+		childTransform->addChild(slot)->translate(3, i*1.7+0.1, -3);
+		slots.push_back(slot);
+	}
+
 	MeshEntity * casing = new MeshEntity(MY_ResourceManager::globalAssets->getMesh("casing")->meshes.at(0), baseShader);
 	casing->mesh->setScaleMode(GL_NEAREST);
 	casing->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("machine")->texture);
@@ -49,12 +57,6 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 	lever->mesh->setScaleMode(GL_NEAREST);
 	lever->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("machine")->texture);
 	childTransform->addChild(lever)->translate(6.056, 3.698, -2.928);
-
-	for(unsigned long int i = 1; i <= 3; ++i){
-		Slot * slot = new Slot(baseShader);
-		childTransform->addChild(slot)->translate(3.102, i*1.832, -2.869);
-		slots.push_back(slot);
-	}
 	
 	
 
@@ -68,13 +70,12 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 
 	doneTimeout = new Timeout(2.f, [this](sweet::Event * _event){
 		// go to next scene
-		game->scenes["end"] = new EndScene(game, 0, 0, 0);
+		game->scenes["end"] = new EndScene(game, slots.at(0)->selection, slots.at(1)->selection, slots.at(2)->selection);
 		game->switchScene("end", true);
 	});
 	doneTimeout->eventManager->addEventListener("progress", [this](sweet::Event * _event){
 		float p = _event->getFloatData("progress");
 		p = glm::clamp(p - 0.5f, 0.f, 0.5f);
-		
 		wipe->marginLeft.rationalSize = Easing::easeOutBounce(p, 1, -1, 0.5f);
 	});
 	childTransform->addChild(doneTimeout, false);
@@ -82,20 +83,25 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 	spinTimeout = new Timeout(2.f, [this](sweet::Event * _event){
 		leverAngle = 0;
 		doneTimeout->start();
+		shake = 0;
 	});
 
 	spinTimeout->eventManager->addEventListener("start", [this](sweet::Event * _event){	
 		spinning = true;
 		for(unsigned long int i = 0; i < slots.size(); ++i){
 			Slot * s = slots.at(i);
-			s->selection = sweet::NumberUtils::randomInt(0, 11);
 			s->spinTimeout->targetSeconds = spinTimeout->targetSeconds * ((float)(i+1)/slots.size() * 0.5f + 0.25f);
 			s->spinTimeout->restart();
 		}
 	});
 
 	spinTimeout->eventManager->addEventListener("progress", [this](sweet::Event * _event){
-		leverAngle = Easing::easeOutBounce(_event->getFloatData("progress"), 180, -180, 1);
+		float p = _event->getFloatData("progress");
+		leverAngle = Easing::easeOutBounce(p, 180, -180, 1);
+		shake = Easing::easeOutCubic(p, 1, -1, 0.5);
+		if(shake < 0.001f){
+			shake = 0;
+		}
 	});
 	childTransform->addChild(spinTimeout, false);
 
@@ -106,14 +112,14 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 	debugCam->controller->alignMouse();
 	// UI
 	debugCam->controller->rotationEnabled = false;
-	debugCam->firstParent()->translate(3.75, -2.0, 30);
+	debugCam->firstParent()->translate(3.5, -1.25, 27);
 	debugCam->fieldOfView = 15;
 	debugCam->pitch = 10;
-	debugCam->yaw = 100;
+	debugCam->yaw = 95;
 	debugCam->interpolation = 1;
 	debugCam->setOrientation(debugCam->calcOrientation());
 	debugCam->rotateVectors(debugCam->childTransform->getOrientationQuat());
-	debugCam->firstParent()->translate(debugCam->rightVectorRotated*5.f);
+	debugCam->firstParent()->translate(debugCam->rightVectorRotated*2.5f);
 }
 
 MY_Scene_Main::~MY_Scene_Main(){
@@ -133,6 +139,11 @@ void MY_Scene_Main::update(Step * _step){
 	checkForGlError(0);
 	if(test != -1){
 		glUniform1f(test, _step->time);
+		checkForGlError(0);
+	}test = glGetUniformLocation(screenSurfaceShader->getProgramId(), "mag");
+	checkForGlError(0);
+	if(test != -1){
+		glUniform1f(test, shake);
 		checkForGlError(0);
 	}
 

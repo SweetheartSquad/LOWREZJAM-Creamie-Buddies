@@ -15,8 +15,7 @@ public:
 	Timeout * readyTimeout;
 
 	NodeUI * wipe;
-
-
+	UILayer * bgLayer;
 	MeshEntity * cone, * face, * topping;
 	
 	// target zoom level

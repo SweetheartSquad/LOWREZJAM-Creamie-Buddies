@@ -8,6 +8,7 @@
 #include <RenderSurface.h>
 #include <StandardFrameBuffer.h>
 #include <RenderOptions.h>
+#include <MeshFactory.h>
 
 EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _face, unsigned long int _topping) :
 	MY_Scene_Base(_game),
@@ -16,12 +17,23 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 	screenFBO(new StandardFrameBuffer(true)),
 	ready(false),
 
-	zoom(15),
+	zoom(12.5),
 	gameCamPolarCoords(0, zoom),
 	orbitalSpeed(1),
 	orbitalHeight(3),
 	targetOrbitalHeight(orbitalHeight)
 {
+	
+	
+	bgLayer = new UILayer(0,0,0,0);
+	NodeUI * bg = new NodeUI(bgLayer->world);
+	bgLayer->addChild(bg);
+	bg->setRationalHeight(1.f, bgLayer);
+	bg->setRationalWidth(1.f, bgLayer);
+	bg->background->mesh->replaceTextures(MY_ResourceManager::globalAssets->getTexture("bg")->texture);
+	bg->background->mesh->setScaleMode(GL_NEAREST);
+
+	bgLayer->resize(0, 64, 0, 64);
 	uiLayer->resize(0, 64, 0, 64);
 
 
@@ -41,7 +53,7 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 	uiLayer->addChild(wipe);
 	wipe->setRationalHeight(1.f, uiLayer);
 	wipe->setRationalWidth(1.f, uiLayer);
-	wipe->setMarginRight(1.f);
+	wipe->marginRight.setRationalSize(0, &uiLayer->width);
 
 	readyTimeout = new Timeout(2.f, [this](sweet::Event * _event){
 		// go to next scene
@@ -90,9 +102,32 @@ EndScene::~EndScene(){
 	screenSurface->decrementAndDelete();
 	screenSurfaceShader->decrementAndDelete();
 	screenFBO->decrementAndDelete();
+
+	delete bgLayer;
 }
 
 void EndScene::update(Step * _step){
+	// Screen shader update
+	// Screen shaders are typically loaded from a file instead of built using components, so to update their uniforms
+	// we need to use the OpenGL API calls
+	screenSurfaceShader->bindShader(); // remember that we have to bind the shader before it can be updated
+	GLint test = glGetUniformLocation(screenSurfaceShader->getProgramId(), "time");
+	checkForGlError(0);
+	if(test != -1){
+		glUniform1f(test, _step->time);
+		checkForGlError(0);
+	}
+
+
+	if(keyboard->keyJustDown(GLFW_KEY_L)){
+		screenSurfaceShader->unload();
+		screenSurfaceShader->loadFromFile(screenSurfaceShader->vertSource, screenSurfaceShader->fragSource);
+		screenSurfaceShader->load();
+	}
+
+
+
+
 	if(ready){
 		if(/*mouse->leftJustPressed() || */keyboard->keyJustDown(GLFW_KEY_ESCAPE)){
 			game->switchScene("menu", true);
@@ -105,7 +140,7 @@ void EndScene::update(Step * _step){
 	zoom -= mouse->getMouseWheelDelta();
 	zoom = glm::clamp(zoom, 10.f, 20.f);
 	gameCamPolarCoords.y += (zoom - gameCamPolarCoords.y) * 0.05f;
-	gameCamPolarCoords.y = glm::clamp(gameCamPolarCoords.y, 1.f, 10.f);
+	gameCamPolarCoords.y = glm::clamp(gameCamPolarCoords.y, 10.f, 20.f);
 
 	if(mouse->leftDown()){
 		if(!mouse->leftJustPressed()){
@@ -132,13 +167,12 @@ void EndScene::update(Step * _step){
 	orbitalCam->firstParent()->translate(glm::vec3(glm::sin(gameCamPolarCoords.x) * gameCamPolarCoords.y, orbitalHeight, glm::cos(gameCamPolarCoords.x) * gameCamPolarCoords.y), false);
 
 
+
 	
-
-
-
-
+	bgLayer->resize(0, 64, 0, 64);
 	uiLayer->resize(0, 64, 0, 64);
 	MY_Scene_Base::update(_step);
+	bgLayer->update(_step);
 	uiLayer->update(_step);
 
 
@@ -158,15 +192,15 @@ void EndScene::render(sweet::MatrixStack * _matrixStack, RenderOptions * _render
 	// keep our screen framebuffer up-to-date with the current viewport
 	screenFBO->resize(64, 64);
 	_renderOptions->setViewPort(0,0,64,64);
-	_renderOptions->setClearColour(0,0,0,0);
+	_renderOptions->setClearColour(1,0,0,0);
 
 	// bind our screen framebuffer
 	FrameBufferInterface::pushFbo(screenFBO);
 	// render the scene
-	uiLayer->setVisible(true);
+	_renderOptions->clear();
+	bgLayer->render(_matrixStack, _renderOptions);
+	Scene::render(_matrixStack, _renderOptions);
 	uiLayer->render(_matrixStack, _renderOptions);
-	uiLayer->setVisible(false);
-	MY_Scene_Base::render(_matrixStack, _renderOptions);
 	// unbind our screen framebuffer, rebinding the previously bound framebuffer
 	// since we didn't have one bound before, this will be the default framebuffer (i.e. the one visible to the player)
 	FrameBufferInterface::popFbo();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <MY_Scene_Main.h>
+#include <EndScene.h>
 #include <RenderSurface.h>
 #include <StandardFrameBuffer.h>
 #include <RenderOptions.h>
@@ -40,13 +41,13 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 	// GAME
 	MeshEntity * casing = new MeshEntity(MY_ResourceManager::globalAssets->getMesh("casing")->meshes.at(0), baseShader);
 	casing->mesh->setScaleMode(GL_NEAREST);
-	casing->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("casing")->texture);
+	casing->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("machine")->texture);
 	childTransform->addChild(casing);
 
 
 	lever = new MeshEntity(MY_ResourceManager::globalAssets->getMesh("lever")->meshes.at(0), baseShader);
 	lever->mesh->setScaleMode(GL_NEAREST);
-	lever->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("lever")->texture);
+	lever->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("machine")->texture);
 	childTransform->addChild(lever)->translate(6.056, 3.698, -2.928);
 
 	for(unsigned long int i = 1; i <= 3; ++i){
@@ -65,8 +66,10 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 	wipe->setRationalWidth(1.f, uiLayer);
 	wipe->setMarginLeft(1.f);
 
-	doneTimeout = new Timeout(3.f, [this](sweet::Event * _event){
+	doneTimeout = new Timeout(2.f, [this](sweet::Event * _event){
 		// go to next scene
+		game->scenes["end"] = new EndScene(game, 0, 0, 0);
+		game->switchScene("end", true);
 	});
 	doneTimeout->eventManager->addEventListener("progress", [this](sweet::Event * _event){
 		float p = _event->getFloatData("progress");
@@ -76,15 +79,17 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 	});
 	childTransform->addChild(doneTimeout, false);
 
-	spinTimeout = new Timeout(1.f, [this](sweet::Event * _event){
+	spinTimeout = new Timeout(2.f, [this](sweet::Event * _event){
 		leverAngle = 0;
 		doneTimeout->start();
 	});
 
 	spinTimeout->eventManager->addEventListener("start", [this](sweet::Event * _event){	
 		spinning = true;
-		for(auto s : slots){
+		for(unsigned long int i = 0; i < slots.size(); ++i){
+			Slot * s = slots.at(i);
 			s->selection = sweet::NumberUtils::randomInt(0, 11);
+			s->spinTimeout->targetSeconds = spinTimeout->targetSeconds * ((float)(i+1)/slots.size() * 0.5f + 0.25f);
 			s->spinTimeout->restart();
 		}
 	});
@@ -96,16 +101,19 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 
 
 
-	// UI
 
 	
 	debugCam->controller->alignMouse();
+	// UI
 	debugCam->controller->rotationEnabled = false;
-	debugCam->setOrientation(debugCam->calcOrientation());
-	debugCam->firstParent()->translate(3.5, -2.0, 30);
+	debugCam->firstParent()->translate(3.75, -2.0, 30);
 	debugCam->fieldOfView = 15;
 	debugCam->pitch = 10;
+	debugCam->yaw = 100;
 	debugCam->interpolation = 1;
+	debugCam->setOrientation(debugCam->calcOrientation());
+	debugCam->rotateVectors(debugCam->childTransform->getOrientationQuat());
+	debugCam->firstParent()->translate(debugCam->rightVectorRotated*5.f);
 }
 
 MY_Scene_Main::~MY_Scene_Main(){
@@ -143,6 +151,7 @@ void MY_Scene_Main::update(Step * _step){
 		if(mouse->leftJustPressed()){
 			// start lever
 			leverY = mouse->mouseY();
+			sweet::setCursorMode(GLFW_CURSOR_DISABLED);
 		}else if(mouse->leftDown()){
 			// pull lever
 			targetLever = (mouse->mouseY(false) - leverY) / sweet::getWindowHeight();
@@ -162,7 +171,9 @@ void MY_Scene_Main::update(Step * _step){
 		leverAngle += (-targetLever*180.f - leverAngle) * 0.25f;
 	}
 	lever->childTransform->setOrientation(glm::angleAxis(leverAngle, glm::vec3(1,0,0)));
-	
+	if(mouse->leftJustReleased()){
+		sweet::setCursorMode(GLFW_CURSOR_NORMAL);
+	}
 	
 	// Scene update
 	uiLayer->resize(0, 64, 0, 64);

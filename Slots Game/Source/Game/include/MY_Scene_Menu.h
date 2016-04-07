@@ -8,6 +8,5 @@ public:
 	Timeout * readyTimeout;
 
 	MY_Scene_Menu(Game * _game);
-	MeshInterface * clouds;
 	virtual void update(Step * _step) override;
 };

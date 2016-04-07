@@ -15,6 +15,16 @@
       "id": "waiting",
       "src": "waiting.png",
       "generateMipmaps": false
+    },{
+      "type": "texture",
+      "id": "machine",
+      "src": "machine.png",
+      "generateMipmaps": false
+    },{
+      "type": "texture",
+      "id": "bg",
+      "src": "bg.png",
+      "generateMipmaps": false
     }
 
 
@@ -30,6 +40,28 @@
       "type": "mesh",
       "id": "casing",
       "src": "casing.obj"
+    }
+
+    ,{
+      "type": "mesh",
+      "id": "cone",
+      "src": "cone.obj"
+    },{
+      "type": "mesh",
+      "id": "face",
+      "src": "face.obj"
+    },{
+      "type": "mesh",
+      "id": "topping",
+      "src": "topping.obj"
+    }
+
+
+    ,{
+      "type": "texture",
+      "id": "icecream_0",
+      "src": "icecream_0.png",
+      "generateMipmaps": false
     }
   ]
 }

@@ -12,6 +12,7 @@ MY_Game::MY_Game() :
 	Game("menu", new MY_Scene_Menu(this), true) // initialize our game with a menu scene
 {
 	sweet::setCursorMode(GLFW_CURSOR_NORMAL);
+	MY_ResourceManager::globalAssets->getAudio("bgm")->sound->play(true);
 }
 
 MY_Game::~MY_Game(){}

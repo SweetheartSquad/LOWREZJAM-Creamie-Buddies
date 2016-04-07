@@ -68,5 +68,36 @@
       "src": "icecream_0.png",
       "generateMipmaps": false
     }
+
+
+
+
+    // audio
+    ,{
+      "type": "audio",
+      "id": "slot1",
+      "src": "slot1.wav",
+      "category":"sfx"
+    },{
+      "type": "audio",
+      "id": "slot2",
+      "src": "slot2.wav",
+      "category":"sfx"
+    },{
+      "type": "audio",
+      "id": "slot3",
+      "src": "slot3.wav",
+      "category":"sfx"
+    },{
+      "type": "audio",
+      "id": "spin",
+      "src": "spin.wav",
+      "category":"sfx"
+    },{
+      "type": "audio",
+      "id": "bgm",
+      "src": "oh baby spin me round.wav",
+      "category":"music"
+    }
   ]
 }

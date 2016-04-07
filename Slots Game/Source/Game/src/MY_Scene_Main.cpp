@@ -42,7 +42,7 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 	// GAME
 
 	for(unsigned long int i = 1; i <= 3; ++i){
-		Slot * slot = new Slot(baseShader);
+		Slot * slot = new Slot(baseShader, i);
 		childTransform->addChild(slot)->translate(3, i*1.7+0.1, -3);
 		slots.push_back(slot);
 	}
@@ -93,6 +93,7 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 			s->spinTimeout->targetSeconds = spinTimeout->targetSeconds * ((float)(i+1)/slots.size() * 0.5f + 0.25f);
 			s->spinTimeout->restart();
 		}
+		MY_ResourceManager::globalAssets->getAudio("spin")->sound->play();
 	});
 
 	spinTimeout->eventManager->addEventListener("progress", [this](sweet::Event * _event){

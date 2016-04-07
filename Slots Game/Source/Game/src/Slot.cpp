@@ -5,7 +5,7 @@
 #include <Timeout.h>
 #include <NumberUtils.h>
 
-Slot::Slot(Shader * _shader) : 
+Slot::Slot(Shader * _shader, int _id) : 
 	MeshEntity(MY_ResourceManager::globalAssets->getMesh("slot")->meshes.at(0), _shader),
 	angle(0),
 	angleTarget(0),
@@ -16,8 +16,9 @@ Slot::Slot(Shader * _shader) :
 	mesh->uvEdgeMode = GL_CLAMP_TO_BORDER;
 	mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("slot")->texture);
 
-	spinTimeout = new Timeout(2.f, [this](sweet::Event * _event){
+	spinTimeout = new Timeout(2.f, [this, _id](sweet::Event * _event){
 		spinning = false;
+		MY_ResourceManager::globalAssets->getAudio("slot"+std::to_string(_id))->sound->play();
 	});
 	spinTimeout->eventManager->addEventListener("start", [this](sweet::Event * _event){
 		selection = sweet::NumberUtils::randomInt(0, 11);

@@ -15,7 +15,7 @@ public:
 	bool spinning;
 
 
-	Slot(Shader * _shader);
+	Slot(Shader * _shader, int _id);
 	~Slot();
 
 	virtual void update(Step * _step) override;

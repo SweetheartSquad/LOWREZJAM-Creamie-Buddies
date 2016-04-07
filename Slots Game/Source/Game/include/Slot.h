@@ -10,7 +10,7 @@ public:
 
 	int selection;
 	float angle;
-	float angleTaget;
+	float angleTarget;
 
 	bool spinning;
 

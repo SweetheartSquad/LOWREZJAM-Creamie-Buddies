@@ -8,7 +8,7 @@
 Slot::Slot(Shader * _shader) : 
 	MeshEntity(MY_ResourceManager::globalAssets->getMesh("slot")->meshes.at(0), _shader),
 	angle(0),
-	angleTaget(0),
+	angleTarget(0),
 	selection(1),
 	spinning(false)
 {
@@ -35,11 +35,11 @@ Slot::~Slot(){
 
 void Slot::update(Step * _step){
 	if(spinning){
-		angleTaget -= 20.f;
+		angleTarget -= 20.f;
 	}else{
-		angleTaget = -(selection-1) / 12.f * 360.f;
+		angleTarget = -(selection-1) / 12.f * 360.f;
 	}
-	float d = angleTaget - angle;
+	float d = angleTarget - angle;
 	if(glm::abs(d) > FLT_EPSILON){
 		if(d > 90.f){
 			d -= 360.f;

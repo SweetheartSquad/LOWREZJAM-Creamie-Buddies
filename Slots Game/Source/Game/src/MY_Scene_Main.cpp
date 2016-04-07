@@ -112,7 +112,7 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 	debugCam->controller->alignMouse();
 	// UI
 	debugCam->controller->rotationEnabled = false;
-	debugCam->firstParent()->translate(3.5, -1.25, 27);
+	debugCam->firstParent()->translate(3.6, -1.3, 27);
 	debugCam->fieldOfView = 15;
 	debugCam->pitch = 10;
 	debugCam->yaw = 95;

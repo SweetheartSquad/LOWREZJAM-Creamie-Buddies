@@ -39,14 +39,15 @@ void Slot::update(Step * _step){
 	}else{
 		angleTaget = -(selection-1) / 12.f * 360.f;
 	}
-	if(angleTaget < -90.f){
-		angleTaget += 360.f;
-		angle += 360.f;
+	float d = angleTaget - angle;
+	if(glm::abs(d) > FLT_EPSILON){
+		if(d > 90.f){
+			d -= 360.f;
+		}
+
+		angle += d*0.1f;
+
+		childTransform->setOrientation(glm::angleAxis(angle, glm::vec3(0, 1, 0)));
 	}
-
-	angle += (angleTaget - angle)*0.1f;
-
-	childTransform->setOrientation(glm::angleAxis(angle, glm::vec3(0, 1, 0)));
-
 	MeshEntity::update(_step);
 }

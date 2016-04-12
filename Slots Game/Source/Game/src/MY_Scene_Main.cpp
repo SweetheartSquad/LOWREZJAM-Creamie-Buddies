@@ -206,18 +206,15 @@ void MY_Scene_Main::render(sweet::MatrixStack * _matrixStack, RenderOptions * _r
 
 	
 
-	float f = glm::sin(sweet::lastTimestamp*0.5f)*0.5f + 0.5f;
+	float f = (glm::sin(sweet::lastTimestamp*0.5f) + 1) * 0.5f;
 
-	float r = 174;
-	float g = 168;
-	float b = 223;
+	float r = 168/255.f;
+	float g = 217/255.f;
+	float b = 223/255.f;
 	
-	r += (223 - r) * f;
-	b += (216 - b) * f;
-	
-	r /= 255.f;
-	g /= 255.f;
-	b /= 255.f;
+	r += (223/255.f - r) * f;
+	g += (168/255.f - g) * f;
+	b += (216/255.f - b) * f;
 
 	_renderOptions->setClearColour(1,r,g,b);
 

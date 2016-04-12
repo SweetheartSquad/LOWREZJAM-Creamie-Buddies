@@ -27,8 +27,18 @@
       "generateMipmaps": false
     },{
       "type": "texture",
-      "id": "bg",
-      "src": "bg.png",
+      "id": "bg_1",
+      "src": "sparkle.png",
+      "generateMipmaps": false
+    },{
+      "type": "texture",
+      "id": "bg_2",
+      "src": "sparkle2.png",
+      "generateMipmaps": false
+    },{
+      "type": "texture",
+      "id": "bg_3",
+      "src": "sparkle3.png",
       "generateMipmaps": false
     }
 

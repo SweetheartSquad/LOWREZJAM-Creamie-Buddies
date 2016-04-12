@@ -14,7 +14,7 @@ public:
 	bool ready;
 	Timeout * readyTimeout;
 
-	NodeUI * wipe;
+	NodeUI * wipe, * bg;
 	UILayer * bgLayer;
 	MeshEntity * cone, * face, * topping;
 	

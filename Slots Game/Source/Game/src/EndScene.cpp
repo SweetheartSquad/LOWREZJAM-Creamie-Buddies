@@ -26,11 +26,11 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 	
 	
 	bgLayer = new UILayer(0,0,0,0);
-	NodeUI * bg = new NodeUI(bgLayer->world);
+	bg = new NodeUI(bgLayer->world);
 	bgLayer->addChild(bg);
 	bg->setRationalHeight(1.f, bgLayer);
 	bg->setRationalWidth(1.f, bgLayer);
-	bg->background->mesh->replaceTextures(MY_ResourceManager::globalAssets->getTexture("bg")->texture);
+	bg->background->mesh->replaceTextures(MY_ResourceManager::globalAssets->getTexture("bg_1")->texture);
 	bg->background->mesh->setScaleMode(GL_NEAREST);
 
 	bgLayer->resize(0, 64, 0, 64);
@@ -107,6 +107,7 @@ EndScene::~EndScene(){
 }
 
 void EndScene::update(Step * _step){
+	bg->background->mesh->replaceTextures(MY_ResourceManager::globalAssets->getTexture("bg_" + std::to_string(((_step->cycles/10)%3) + 1))->texture);
 	// Screen shader update
 	// Screen shaders are typically loaded from a file instead of built using components, so to update their uniforms
 	// we need to use the OpenGL API calls
@@ -193,18 +194,15 @@ void EndScene::render(sweet::MatrixStack * _matrixStack, RenderOptions * _render
 	screenFBO->resize(64, 64);
 	_renderOptions->setViewPort(0,0,64,64);
 
-	float f = glm::sin(sweet::lastTimestamp*0.5f)*0.5f + 0.5f;
+	float f = (glm::sin(sweet::lastTimestamp*0.5f) + 1) * 0.5f;
 
-	float r = 174;
-	float g = 168;
-	float b = 223;
+	float r = 168/255.f;
+	float g = 217/255.f;
+	float b = 223/255.f;
 	
-	r += (223 - r) * f;
-	b += (216 - b) * f;
-	
-	r /= 255.f;
-	g /= 255.f;
-	b /= 255.f;
+	r += (223/255.f - r) * f;
+	g += (168/255.f - g) * f;
+	b += (216/255.f - b) * f;
 
 	_renderOptions->setClearColour(1,r,g,b);
 
@@ -212,7 +210,7 @@ void EndScene::render(sweet::MatrixStack * _matrixStack, RenderOptions * _render
 	FrameBufferInterface::pushFbo(screenFBO);
 	// render the scene
 	_renderOptions->clear();
-	//bgLayer->render(_matrixStack, _renderOptions);
+	bgLayer->render(_matrixStack, _renderOptions);
 	Scene::render(_matrixStack, _renderOptions);
 	uiLayer->render(_matrixStack, _renderOptions);
 	// unbind our screen framebuffer, rebinding the previously bound framebuffer

@@ -20,12 +20,26 @@
       "id": "machine",
       "src": "machine.png",
       "generateMipmaps": false
-    },{
+    }
+
+    ,{
       "type": "texture",
-      "id": "slot",
-      "src": "slot.png",
+      "id": "slots_1",
+      "src": "slots_cone.png",
       "generateMipmaps": false
     },{
+      "type": "texture",
+      "id": "slots_2",
+      "src": "slots_face.png",
+      "generateMipmaps": false
+    },{
+      "type": "texture",
+      "id": "slots_3",
+      "src": "slots_topping.png",
+      "generateMipmaps": false
+    }
+
+    ,{
       "type": "texture",
       "id": "bg_1",
       "src": "sparkle.png",

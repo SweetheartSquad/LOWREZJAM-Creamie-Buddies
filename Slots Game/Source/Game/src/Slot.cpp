@@ -6,15 +6,16 @@
 #include <NumberUtils.h>
 
 Slot::Slot(Shader * _shader, int _id) : 
-	MeshEntity(MY_ResourceManager::globalAssets->getMesh("slot")->meshes.at(0), _shader),
+	MeshEntity(new TriMesh(true), _shader),
 	angle(0),
 	angleTarget(0),
-	selection(1),
+	selection(0),
 	spinning(false)
 {
 	mesh->setScaleMode(GL_NEAREST);
 	mesh->uvEdgeMode = GL_CLAMP_TO_BORDER;
-	mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("slot")->texture);
+	mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("slots_" + std::to_string(_id))->texture);
+	mesh->insertVertices(*MY_ResourceManager::globalAssets->getMesh("slot")->meshes.at(0));
 
 	spinTimeout = new Timeout(2.f, [this, _id](sweet::Event * _event){
 		spinning = false;
@@ -38,7 +39,7 @@ void Slot::update(Step * _step){
 	if(spinning){
 		angleTarget -= 20.f;
 	}else{
-		angleTarget = -(selection-1) / 12.f * 360.f;
+		angleTarget = -(selection) / 12.f * 360.f;
 	}
 	float d = angleTarget - angle;
 	if(glm::abs(d) > FLT_EPSILON){

@@ -53,7 +53,7 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 	uiLayer->addChild(wipe);
 	wipe->setRationalHeight(1.f, uiLayer);
 	wipe->setRationalWidth(1.f, uiLayer);
-	wipe->marginRight.setRationalSize(0, &uiLayer->width);
+	wipe->marginLeft.setRationalSize(0, &uiLayer->width);
 
 	readyTimeout = new Timeout(2.f, [this](sweet::Event * _event){
 		// go to next scene
@@ -63,7 +63,8 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 		float p = _event->getFloatData("progress");
 		p = glm::clamp(p - 0.5f, 0.f, 0.5f);
 		
-		wipe->marginRight.rationalSize = Easing::easeOutBounce(p, 0, 1, 0.5f);
+		wipe->marginLeft.rationalSize = Easing::easeOutBounce(p, 0, -1, 0.5f);
+		wipe->width.rationalSize = Easing::easeOutBounce(p, 1, -1, 0.5f);
 	});
 	childTransform->addChild(readyTimeout, false);
 	readyTimeout->start();

@@ -77,6 +77,7 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 		float p = _event->getFloatData("progress");
 		p = glm::clamp(p - 0.5f, 0.f, 0.5f);
 		wipe->marginLeft.rationalSize = Easing::easeOutBounce(p, 1, -1, 0.5f);
+		wipe->width.rationalSize = Easing::easeOutBounce(p, 2, -1, 0.5f);
 	});
 	childTransform->addChild(doneTimeout, false);
 

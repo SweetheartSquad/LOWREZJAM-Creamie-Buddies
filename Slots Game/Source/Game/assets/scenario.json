@@ -64,8 +64,8 @@
 
     ,{
       "type": "texture",
-      "id": "icecream_0",
-      "src": "icecream_0.png",
+      "id": "palette",
+      "src": "full_palette.png",
       "generateMipmaps": false
     }
 

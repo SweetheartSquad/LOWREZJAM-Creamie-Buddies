@@ -5,7 +5,7 @@
 		"x": 256,
 		"y": 256
 	},
-	"rngSeed": 0,
+	"rngSeed": -1,
 	"monitor": 0,
 	"useLibOVR": false,
 	"nodeCounting": true,

@@ -71,7 +71,7 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 	
 	
 	// TODO: take this out when more meshes are done
-	_cone = _face = _topping = 0;
+	_cone = /*_face = _topping = */0;
 
 	
 	cone = new MeshEntity(MY_ResourceManager::globalAssets->getMesh("cone")->meshes.at(_cone), baseShader);
@@ -82,9 +82,10 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 	face->mesh->setScaleMode(GL_NEAREST);
 	topping->mesh->setScaleMode(GL_NEAREST);
 
-	cone->mesh->replaceTextures(MY_ResourceManager::globalAssets->getTexture("icecream_"+std::to_string(_cone))->texture);
-	face->mesh->replaceTextures(MY_ResourceManager::globalAssets->getTexture("icecream_"+std::to_string(_face))->texture);
-	topping->mesh->replaceTextures(MY_ResourceManager::globalAssets->getTexture("icecream_"+std::to_string(_topping))->texture);
+	Texture * tex = MY_ResourceManager::globalAssets->getTexture("palette")->texture;
+	cone->mesh->replaceTextures(tex);
+	face->mesh->replaceTextures(tex);
+	topping->mesh->replaceTextures(tex);
 
 	childTransform->addChild(cone);
 	cone->childTransform->addChild(face)->translate(0, cone->mesh->calcBoundingBox().height + cone->mesh->calcBoundingBox().y, 0);

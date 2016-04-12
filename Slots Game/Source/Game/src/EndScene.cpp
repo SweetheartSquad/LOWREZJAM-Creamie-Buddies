@@ -69,11 +69,6 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 	readyTimeout->start();
 	readyTimeout->name = "ready timeout";
 	
-	
-	// TODO: take this out when more meshes are done
-	_cone = /*_face = _topping = */0;
-
-	
 	cone = new MeshEntity(MY_ResourceManager::globalAssets->getMesh("cone")->meshes.at(_cone), baseShader);
 	face = new MeshEntity(MY_ResourceManager::globalAssets->getMesh("face")->meshes.at(_face), baseShader);
 	topping = new MeshEntity(MY_ResourceManager::globalAssets->getMesh("topping")->meshes.at(_topping), baseShader);

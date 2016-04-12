@@ -96,7 +96,7 @@
     },{
       "type": "audio",
       "id": "bgm",
-      "src": "oh baby spin me round.wav",
+      "src": "song.wav",
       "category":"music"
     }
   ]

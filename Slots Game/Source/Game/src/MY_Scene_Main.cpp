@@ -203,7 +203,23 @@ void MY_Scene_Main::render(sweet::MatrixStack * _matrixStack, RenderOptions * _r
 	// keep our screen framebuffer up-to-date with the current viewport
 	screenFBO->resize(64, 64);
 	_renderOptions->setViewPort(0,0,64,64);
-	_renderOptions->setClearColour(0,0,0,0);
+
+	
+
+	float f = glm::sin(sweet::lastTimestamp*0.5f)*0.5f + 0.5f;
+
+	float r = 174;
+	float g = 168;
+	float b = 223;
+	
+	r += (223 - r) * f;
+	b += (216 - b) * f;
+	
+	r /= 255.f;
+	g /= 255.f;
+	b /= 255.f;
+
+	_renderOptions->setClearColour(1,r,g,b);
 
 	// bind our screen framebuffer
 	FrameBufferInterface::pushFbo(screenFBO);

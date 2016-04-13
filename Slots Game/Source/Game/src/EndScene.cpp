@@ -10,6 +10,8 @@
 #include <RenderOptions.h>
 #include <MeshFactory.h>
 
+bool EndScene::explored = false;
+
 EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _face, unsigned long int _topping) :
 	MY_Scene_Base(_game),
 	screenSurfaceShader(new Shader("assets/RenderSurface_1", false, true)),
@@ -46,6 +48,33 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 	screenSurface->uvEdgeMode = GL_CLAMP_TO_BORDER;
 
 
+	NodeUI * redoButt = new NodeUI(uiLayer->world);
+	redoButt->background->mesh->setScaleMode(GL_NEAREST);
+	redoButt->background->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("redoButt")->texture);
+	redoButt->setRationalHeight(10/64.f, uiLayer);
+	redoButt->setRationalWidth(10/64.f, uiLayer);
+	uiLayer->addChild(redoButt);
+	redoButt->boxSizing = kCONTENT_BOX;
+	redoButt->setMarginLeft(1/64.f);
+	redoButt->setMarginBottom(1/64.f);
+	redoButt->setMouseEnabled(true);
+	redoButt->eventManager->addEventListener("click", [this](sweet::Event * _event){
+		if(ready){
+			game->switchScene("menu", true);
+		}
+	});
+
+	NodeUI * picButt = new NodeUI(uiLayer->world);
+	picButt->background->mesh->setScaleMode(GL_NEAREST);
+	picButt->background->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("picButt")->texture);
+	picButt->setRationalHeight(10/64.f, uiLayer);
+	picButt->setRationalWidth(10/64.f, uiLayer);
+	uiLayer->addChild(picButt);
+	picButt->boxSizing = kCONTENT_BOX;
+	picButt->setMarginLeft(12/64.f);
+	picButt->setMarginBottom(1/64.f);
+	picButt->setMouseEnabled(true);
+
 
 	wipe = new NodeUI(uiLayer->world);
 	wipe->background->mesh->setScaleMode(GL_NEAREST);
@@ -70,6 +99,52 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 	readyTimeout->start();
 	readyTimeout->name = "ready timeout";
 	
+	
+	NodeUI * fade = new NodeUI(uiLayer->world);
+	fade->setRationalHeight(1.f, uiLayer);
+	fade->setRationalWidth(1.f, uiLayer);
+	fade->setVisible(false);
+	uiLayer->addChild(fade);
+
+	Timeout * fadeTimeout = new Timeout(0.5f, [fade](sweet::Event * _event){
+		fade->setVisible(false);
+		fade->setBackgroundColour(1,1,1,0);
+
+		// open an explorer window pointed to the screenshots folder
+		if(!explored){
+			explored = true;
+				
+			TCHAR buffer[MAX_PATH];
+			DWORD dwRet = GetCurrentDirectory(MAX_PATH, buffer);
+
+			std::wstringstream ss;
+			ss << buffer << L"\\data\\screenshots";
+
+			ShellExecute(HWND(nullptr), L"explore", ss.str().c_str(), L"", L"", SW_SHOWDEFAULT);
+		}
+	});
+	fadeTimeout->eventManager->addEventListener("progress", [fade](sweet::Event * _event){
+		fade->setBackgroundColour(1,1,1,1.f - _event->getFloatData("progress"));
+	});
+	fadeTimeout->eventManager->addEventListener("start", [fade](sweet::Event * _event){
+		fade->setVisible(true);
+		fade->setBackgroundColour(1,1,1,1);
+	});
+	childTransform->addChild(fadeTimeout);
+	
+	picButt->eventManager->addEventListener("click", [this, fadeTimeout](sweet::Event * _event){
+		if(ready){
+			MY_ResourceManager::globalAssets->getAudio("flash")->sound->play();
+			uiLayer->setVisible(false);
+			game->update(&sweet::step);
+			game->draw(this);
+			glfwSwapBuffers(sweet::currentContext);
+			game->takeScreenshot();
+			uiLayer->setVisible(true);
+			fadeTimeout->restart();
+		}
+	});
+
 	cone = new MeshEntity(MY_ResourceManager::globalAssets->getMesh("cone")->meshes.at(_cone), baseShader);
 	face = new MeshEntity(MY_ResourceManager::globalAssets->getMesh("face")->meshes.at(_face), baseShader);
 	topping = new MeshEntity(MY_ResourceManager::globalAssets->getMesh("topping")->meshes.at(_topping), baseShader);

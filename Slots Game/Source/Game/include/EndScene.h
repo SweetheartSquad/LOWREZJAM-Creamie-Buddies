@@ -12,6 +12,7 @@ public:
 	StandardFrameBuffer * screenFBO;
 
 	bool ready;
+	static bool explored;
 	Timeout * readyTimeout;
 
 	NodeUI * wipe, * bg;

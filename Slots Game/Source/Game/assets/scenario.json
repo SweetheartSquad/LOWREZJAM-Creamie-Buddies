@@ -15,7 +15,21 @@
       "id": "waiting",
       "src": "waiting.png",
       "generateMipmaps": false
+    },
+
+    {
+      "type": "texture",
+      "id": "redoButt",
+      "src": "redoButt.png",
+      "generateMipmaps": false
     },{
+      "type": "texture",
+      "id": "picButt",
+      "src": "picButt.png",
+      "generateMipmaps": false
+    },
+
+    {
       "type": "texture",
       "id": "machine",
       "src": "machine.png",
@@ -116,6 +130,11 @@
       "type": "audio",
       "id": "spin",
       "src": "spin.wav",
+      "category":"sfx"
+    },{
+      "type": "audio",
+      "id": "flash",
+      "src": "flash.wav",
       "category":"sfx"
     },{
       "type": "audio",

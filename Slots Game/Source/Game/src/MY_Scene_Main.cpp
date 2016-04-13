@@ -60,6 +60,14 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 	
 	
 
+	circle = new NodeUI(uiLayer->world);
+	circle->background->mesh->setScaleMode(GL_NEAREST);
+	circle->background->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("circle")->texture);
+	uiLayer->addChild(circle);
+	circle->setRationalHeight(1.f, uiLayer);
+	circle->setRationalWidth(1.f, uiLayer);
+	circle->setVisible(false);
+
 	wipe = new NodeUI(uiLayer->world);
 	wipe->background->mesh->setScaleMode(GL_NEAREST);
 	uiLayer->addChild(wipe);
@@ -84,6 +92,16 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 		leverAngle = 0;
 		doneTimeout->start();
 		shake = 0;
+
+		Timeout * s = new Timeout(0.5f, [](sweet::Event * _event){
+		});
+		s->eventManager->addEventListener("complete", [s, this](sweet::Event * _event){
+			s->targetSeconds = 0.1f;
+			circle->setVisible(!circle->isVisible());
+			s->restart();
+		});
+		childTransform->addChild(s, false);
+		s->start();
 	});
 
 	spinTimeout->eventManager->addEventListener("start", [this](sweet::Event * _event){	

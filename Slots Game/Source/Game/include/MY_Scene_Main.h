@@ -23,7 +23,7 @@ public:
 	
 	Timeout * spinTimeout, * doneTimeout, * leaveTimeout;
 
-	NodeUI * wipe;
+	NodeUI * wipe, * circle;
 
 	bool spinning;
 

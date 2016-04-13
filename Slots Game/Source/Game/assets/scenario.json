@@ -27,12 +27,17 @@
       "id": "picButt",
       "src": "picButt.png",
       "generateMipmaps": false
-    },
+    }
 
-    {
+    ,{
       "type": "texture",
       "id": "machine",
       "src": "machine.png",
+      "generateMipmaps": false
+    },{
+      "type": "texture",
+      "id": "circle",
+      "src": "selected.png",
       "generateMipmaps": false
     }
 

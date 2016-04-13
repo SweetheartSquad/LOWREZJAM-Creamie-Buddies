@@ -18,14 +18,14 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 	screenSurface(new RenderSurface(screenSurfaceShader, true)),
 	screenFBO(new StandardFrameBuffer(true)),
 	ready(false),
+	clickingUI(false),
 
-	zoom(12.5),
+	zoom(5.f),
 	gameCamPolarCoords(0, zoom),
-	orbitalSpeed(-7),
+	orbitalSpeed(0),
 	orbitalHeight(3),
 	targetOrbitalHeight(orbitalHeight)
 {
-	
 	
 	bgLayer = new UILayer(0,0,0,0);
 	bg = new NodeUI(bgLayer->world);
@@ -46,30 +46,32 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 	
 	screenSurface->setScaleMode(GL_NEAREST);
 	screenSurface->uvEdgeMode = GL_CLAMP_TO_BORDER;
-
+	
+	controls = new NodeUI(uiLayer->world);
+	controls->background->setVisible(false);
+	controls->setRationalHeight(1.f, uiLayer);
+	controls->setRationalWidth(1.f, uiLayer);
+	controls->boxSizing = kCONTENT_BOX;
+	controls->marginBottom.setRationalSize(0.f, &uiLayer->height);
+	uiLayer->addChild(controls);
 
 	NodeUI * redoButt = new NodeUI(uiLayer->world);
 	redoButt->background->mesh->setScaleMode(GL_NEAREST);
 	redoButt->background->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("redoButt")->texture);
-	redoButt->setRationalHeight(10/64.f, uiLayer);
-	redoButt->setRationalWidth(10/64.f, uiLayer);
-	uiLayer->addChild(redoButt);
+	redoButt->setRationalHeight(10/64.f, controls);
+	redoButt->setRationalWidth(10/64.f, controls);
+	controls->addChild(redoButt);
 	redoButt->boxSizing = kCONTENT_BOX;
 	redoButt->setMarginLeft(1/64.f);
 	redoButt->setMarginBottom(1/64.f);
 	redoButt->setMouseEnabled(true);
-	redoButt->eventManager->addEventListener("click", [this](sweet::Event * _event){
-		if(ready){
-			game->switchScene("menu", true);
-		}
-	});
 
 	NodeUI * picButt = new NodeUI(uiLayer->world);
 	picButt->background->mesh->setScaleMode(GL_NEAREST);
 	picButt->background->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("picButt")->texture);
-	picButt->setRationalHeight(10/64.f, uiLayer);
-	picButt->setRationalWidth(10/64.f, uiLayer);
-	uiLayer->addChild(picButt);
+	picButt->setRationalHeight(10/64.f, controls);
+	picButt->setRationalWidth(10/64.f, controls);
+	controls->addChild(picButt);
 	picButt->boxSizing = kCONTENT_BOX;
 	picButt->setMarginLeft(12/64.f);
 	picButt->setMarginBottom(1/64.f);
@@ -84,20 +86,7 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 	wipe->setRationalWidth(1.f, uiLayer);
 	wipe->marginLeft.setRationalSize(0, &uiLayer->width);
 
-	readyTimeout = new Timeout(2.f, [this](sweet::Event * _event){
-		// go to next scene
-		ready = true;
-	});
-	readyTimeout->eventManager->addEventListener("progress", [this](sweet::Event * _event){
-		float p = _event->getFloatData("progress");
-		p = glm::clamp(p - 0.5f, 0.f, 0.5f);
-		
-		wipe->marginLeft.rationalSize = Easing::easeOutCirc(p, 0, -1, 0.5f);
-		wipe->width.rationalSize = Easing::easeOutCirc(p, 1, -1, 0.5f);
-	});
-	childTransform->addChild(readyTimeout, false);
-	readyTimeout->start();
-	readyTimeout->name = "ready timeout";
+	
 	
 	
 	NodeUI * fade = new NodeUI(uiLayer->world);
@@ -105,6 +94,19 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 	fade->setRationalWidth(1.f, uiLayer);
 	fade->setVisible(false);
 	uiLayer->addChild(fade);
+
+	Timeout * zoomTimeout = new Timeout(1.5f, [this](sweet::Event * _event){
+		orbitalSpeed = -6;
+	});
+	zoomTimeout->eventManager->addEventListener("progress", [this](sweet::Event * _event){
+		zoom = Easing::easeInOutCubic(_event->getFloatData("progress"), 5, 15, 1.f);
+		gameCamPolarCoords.x += glm::sin(_event->getFloatData("progress")*glm::pi<float>()) * -10/60.f;
+		orbitalSpeed = Easing::easeInOutCubic(_event->getFloatData("progress"), 0, -6, 1.f);
+	});
+	zoomTimeout->eventManager->addEventListener("start", [this](sweet::Event * _event){
+		MY_ResourceManager::globalAssets->getAudio("tada")->sound->play();
+	});
+	childTransform->addChild(zoomTimeout, false);
 
 	Timeout * fadeTimeout = new Timeout(0.5f, [fade](sweet::Event * _event){
 		fade->setVisible(false);
@@ -142,6 +144,80 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 			game->takeScreenshot();
 			uiLayer->setVisible(true);
 			fadeTimeout->restart();
+		}
+	});
+	picButt->eventManager->addEventListener("mousedown", [this](sweet::Event * _event){
+		clickingUI = true;
+	});
+	picButt->eventManager->addEventListener("mouseup", [this](sweet::Event * _event){
+		clickingUI = false;
+	});
+
+	
+	slideInTimeout = new Timeout(1.f, [this](sweet::Event * _event){
+		controls->marginBottom.rationalSize = 0.f;
+	});
+	slideInTimeout->eventManager->addEventListener("progress", [this](sweet::Event * _event){
+		controls->marginBottom.rationalSize = Easing::easeOutElastic(_event->getFloatData("progress"), -11/64.f, 11/64.f, 1, 22/64.f);
+	});
+	slideInTimeout->eventManager->addEventListener("start", [this](sweet::Event * _event){
+		controls->marginBottom.rationalSize = -11/64.f;
+	});
+	childTransform->addChild(slideInTimeout, false);
+	
+
+	slideOutTimeout = new Timeout(0.5f, [this](sweet::Event * _event){
+		controls->marginBottom.rationalSize = -11/64.f;
+	});
+	slideOutTimeout->eventManager->addEventListener("progress", [this](sweet::Event * _event){
+		controls->marginBottom.rationalSize = Easing::easeInBack(_event->getFloatData("progress"), 0, -11/64.f, 1, 2.f);
+	});
+	slideOutTimeout->eventManager->addEventListener("start", [this](sweet::Event * _event){
+		controls->marginBottom.rationalSize = 0.f;
+	});
+	childTransform->addChild(slideOutTimeout, false);
+
+
+	readyTimeout = new Timeout(2.f, [this, zoomTimeout](sweet::Event * _event){
+		// go to next scene
+		ready = true;
+		slideOutTimeout->start();
+		zoomTimeout->start();
+	});
+	readyTimeout->eventManager->addEventListener("progress", [this](sweet::Event * _event){
+		float p = _event->getFloatData("progress");
+		p = glm::clamp(p - 0.5f, 0.f, 0.5f);
+		
+		wipe->marginLeft.rationalSize = Easing::easeOutCirc(p, 0, -1, 0.5f);
+		wipe->width.rationalSize = Easing::easeOutCirc(p, 1, -1, 0.5f);
+	});
+	childTransform->addChild(readyTimeout, false);
+	readyTimeout->start();
+	readyTimeout->name = "ready timeout";
+
+
+	leaveTimeout = new Timeout(1.f, [this](sweet::Event * _event){
+		game->switchScene("menu", true);
+		wipe->marginLeft.rationalSize = 0;
+		wipe->width.rationalSize = 1;
+	});
+	leaveTimeout->eventManager->addEventListener("progress", [this](sweet::Event * _event){
+		float p = _event->getFloatData("progress");
+		
+		wipe->marginLeft.rationalSize = Easing::easeOutCirc(p, 1, -1, 1.f);
+		wipe->width.rationalSize = Easing::easeOutCirc(p, 2, -1, 1.f);
+	});
+	leaveTimeout->eventManager->addEventListener("start", [this](sweet::Event * _event){
+		wipe->marginLeft.rationalSize = 1;
+		wipe->width.rationalSize = 2;
+		wipe->background->mesh->replaceTextures(MY_ResourceManager::globalAssets->getTexture("MENU")->texture);
+	});
+	childTransform->addChild(leaveTimeout, false);
+	leaveTimeout->name = "ready timeout";
+	
+	redoButt->eventManager->addEventListener("click", [this](sweet::Event * _event){
+		if(ready){
+			leaveTimeout->restart();
 		}
 	});
 
@@ -205,12 +281,22 @@ void EndScene::update(Step * _step){
 
 
 	if(ready){
-		if(/*mouse->leftJustPressed() || */keyboard->keyJustDown(GLFW_KEY_ESCAPE)){
-			game->switchScene("menu", true);
+		if(keyboard->keyJustDown(GLFW_KEY_ESCAPE)){
+			leaveTimeout->restart();
+		}
+
+		bool onUI = mouse->mouseY() > 11.f/64.f * sweet::getWindowHeight();
+
+		if(!mouse->leftDown() && !mouse->leftJustReleased()){
+			if(onUI){
+				slideInTimeout->stop();
+				slideOutTimeout->start();
+			}else{
+				slideOutTimeout->stop();
+				slideInTimeout->start();
+			}
 		}
 	}
-	
-
 
 	// camera movement
 	zoom -= mouse->getMouseWheelDelta();
@@ -218,8 +304,8 @@ void EndScene::update(Step * _step){
 	gameCamPolarCoords.y += (zoom - gameCamPolarCoords.y) * 0.05f;
 	gameCamPolarCoords.y = glm::clamp(gameCamPolarCoords.y, 5.f, 20.f);
 
-	if(mouse->leftDown()){
-		if(!mouse->leftJustPressed()){
+	if(mouse->leftDown() && ready){
+		if(!mouse->leftJustPressed() && !clickingUI){
 			orbitalSpeed += ((mouse->mouseX(false) - mouseX) - orbitalSpeed) * 0.1f;
 			targetOrbitalHeight -= ((mouse->mouseY(false) - mouseY)) * 0.025f;
 		}else{

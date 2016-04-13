@@ -62,7 +62,6 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 
 	wipe = new NodeUI(uiLayer->world);
 	wipe->background->mesh->setScaleMode(GL_NEAREST);
-	wipe->background->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("waiting")->texture);
 	uiLayer->addChild(wipe);
 	wipe->setRationalHeight(1.f, uiLayer);
 	wipe->setRationalWidth(1.f, uiLayer);
@@ -106,7 +105,28 @@ MY_Scene_Main::MY_Scene_Main(Game * _game) :
 		}
 	});
 	childTransform->addChild(spinTimeout, false);
+	
 
+
+	leaveTimeout = new Timeout(1.f, [this](sweet::Event * _event){
+		wipe->marginLeft.rationalSize = -1;
+		wipe->width.rationalSize = 0;
+		wipe->background->mesh->pushTexture2D(MY_ResourceManager::globalAssets->getTexture("waiting")->texture);
+	});
+	leaveTimeout->eventManager->addEventListener("progress", [this](sweet::Event * _event){
+		float p = _event->getFloatData("progress");
+		
+		wipe->marginLeft.rationalSize = Easing::easeOutCirc(p, 0, -1, 1.f);
+		wipe->width.rationalSize = Easing::easeOutCirc(p, 1, -1, 1.f);
+	});
+	leaveTimeout->eventManager->addEventListener("start", [this](sweet::Event * _event){
+		wipe->marginLeft.rationalSize = 0;
+		wipe->width.rationalSize = 1;
+		wipe->background->mesh->replaceTextures(MY_ResourceManager::globalAssets->getTexture("MENU")->texture);
+	});
+	childTransform->addChild(leaveTimeout, false);
+	leaveTimeout->start();
+	leaveTimeout->name = "ready timeout";
 
 
 

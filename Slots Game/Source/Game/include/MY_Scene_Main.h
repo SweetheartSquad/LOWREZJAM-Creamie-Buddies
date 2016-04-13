@@ -21,7 +21,7 @@ public:
 
 	float shake;
 	
-	Timeout * spinTimeout, * doneTimeout;
+	Timeout * spinTimeout, * doneTimeout, * leaveTimeout;
 
 	NodeUI * wipe;
 

@@ -138,6 +138,11 @@
       "category":"sfx"
     },{
       "type": "audio",
+      "id": "tada",
+      "src": "tada.wav",
+      "category":"sfx"
+    },{
+      "type": "audio",
       "id": "bgm",
       "src": "song.wav",
       "category":"music"

@@ -12,10 +12,11 @@ public:
 	StandardFrameBuffer * screenFBO;
 
 	bool ready;
+	bool clickingUI;
 	static bool explored;
-	Timeout * readyTimeout;
+	Timeout * readyTimeout, * slideInTimeout, * slideOutTimeout, * leaveTimeout;
 
-	NodeUI * wipe, * bg;
+	NodeUI * wipe, * bg, * controls;
 	UILayer * bgLayer;
 	MeshEntity * cone, * face, * topping;
 	

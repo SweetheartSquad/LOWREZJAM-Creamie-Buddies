@@ -16,7 +16,7 @@ public:
 	static bool explored;
 	Timeout * readyTimeout, * slideInTimeout, * slideOutTimeout, * leaveTimeout;
 
-	NodeUI * wipe, * bg, * controls;
+	NodeUI * wipe, * tileBg, * bg, * controls;
 	UILayer * bgLayer;
 	MeshEntity * cone, * face, * topping;
 	

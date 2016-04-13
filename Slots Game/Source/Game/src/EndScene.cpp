@@ -28,6 +28,14 @@ EndScene::EndScene(Game * _game, unsigned long int _cone, unsigned long int _fac
 {
 	
 	bgLayer = new UILayer(0,0,0,0);
+	
+	tileBg = new NodeUI(bgLayer->world);
+	bgLayer->addChild(tileBg);
+	tileBg->setRationalHeight(1.f, bgLayer);
+	tileBg->setRationalWidth(1.f, bgLayer);
+	tileBg->background->mesh->replaceTextures(MY_ResourceManager::globalAssets->getTexture("tilebg")->texture);
+	tileBg->background->mesh->setScaleMode(GL_NEAREST);
+
 	bg = new NodeUI(bgLayer->world);
 	bgLayer->addChild(bg);
 	bg->setRationalHeight(1.f, bgLayer);
@@ -258,6 +266,12 @@ EndScene::~EndScene(){
 }
 
 void EndScene::update(Step * _step){
+	for(auto & v : tileBg->background->mesh->vertices){
+		v.u += 0.005f * _step->deltaTimeCorrection;
+		v.v += 0.005f * _step->deltaTimeCorrection;
+	}
+	tileBg->background->mesh->dirty = true;
+	tileBg->background->mesh->replaceTextures(MY_ResourceManager::globalAssets->getTexture("tilebg_" + std::to_string(((_step->cycles/40)%2) + 1))->texture);
 	bg->background->mesh->replaceTextures(MY_ResourceManager::globalAssets->getTexture("bg_" + std::to_string(((_step->cycles/10)%3) + 1))->texture);
 	// Screen shader update
 	// Screen shaders are typically loaded from a file instead of built using components, so to update their uniforms

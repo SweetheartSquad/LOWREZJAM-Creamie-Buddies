@@ -55,6 +55,18 @@
 
     ,{
       "type": "texture",
+      "id": "tilebg_1",
+      "src": "bg.png",
+      "generateMipmaps": false
+    },{
+      "type": "texture",
+      "id": "tilebg_2",
+      "src": "bg2.png",
+      "generateMipmaps": false
+    }
+
+    ,{
+      "type": "texture",
       "id": "bg_1",
       "src": "sparkle.png",
       "generateMipmaps": false
